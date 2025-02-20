@@ -29,6 +29,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Check for API key
+if not os.getenv("OPENAI_API_KEY"):
+    st.error("⚠️ OpenAI API key not found!")
+    st.info("Please set up your OpenAI API key in the app settings.")
+    st.stop()
+
 # Inject custom CSS
 st.markdown(get_custom_css(), unsafe_allow_html=True)
 

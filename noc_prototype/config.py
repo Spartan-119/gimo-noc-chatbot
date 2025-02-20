@@ -15,21 +15,22 @@ api_key = os.environ.get("OPENAI_API_KEY")  # Use os.environ.get instead of os.g
 logger.info(f"Raw API Key value length: {len(api_key) if api_key else 0}")
 logger.info(f"API Key starts with: {api_key[:10] if api_key else 'None'}")
 
-# OpenAI Configuration
-OPENAI_API_KEY = api_key
-OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "gpt-3.5-turbo")
-EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "text-embedding-ada-002")
+# Load environment variables
+load_dotenv()
 
-# Vector Store Configuration
-CHROMA_PERSIST_DIR = "db"
+# OpenAI API configuration
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Document Processing Configuration
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
+# Vector store configuration
+CHROMA_PERSIST_DIR = "chroma_db"
 
 # Model configuration
 MODEL_NAME = "gpt-4-turbo-preview"
+EMBEDDING_MODEL = "text-embedding-3-small"
 
-# Ensure required environment variables are set
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY environment variable is not set")
+# Document processing configuration
+CHUNK_SIZE = 1000
+CHUNK_OVERLAP = 200
+
+# Remove the strict check to allow the app to start
+# We'll handle the missing API key in the Streamlit app instead
