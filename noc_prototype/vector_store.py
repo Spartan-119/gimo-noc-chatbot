@@ -2,6 +2,8 @@ from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 from .document_loader import load_documents
 from .config import CHROMA_PERSIST_DIR
+import os
+import streamlit as st
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,8 +11,23 @@ logger = logging.getLogger(__name__)
 class VectorStore:
     def __init__(self):
         """Initialize vector store with OpenAI embeddings."""
-        self.embeddings = OpenAIEmbeddings()
-        self.persist_directory = CHROMA_PERSIST_DIR
+        try:
+            # Try getting API key from environment first (for local development)
+            api_key = os.getenv("OPENAI_API_KEY")
+            
+            # If not found in environment, try Streamlit secrets (for cloud deployment)
+            if not api_key:
+                api_key = st.secrets.get("OPENAI_API_KEY")
+            
+            if not api_key:
+                raise ValueError("OpenAI API key not found in environment or Streamlit secrets")
+                
+            self.embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+            self.persist_directory = CHROMA_PERSIST_DIR
+            
+        except Exception as e:
+            logger.error(f"Error initializing OpenAI embeddings: {str(e)}")
+            raise
 
     def create_vector_store(self, documents):
         """Create and return a Chroma vector store from documents."""
