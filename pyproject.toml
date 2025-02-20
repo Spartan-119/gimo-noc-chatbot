@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "noc_prototype"
+version = "0.1.0"
+description = "RAG chatbot for NOC team documentation"
+authors = ["Abin Varghese <abin.varghese@gimo.co.uk>"]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.9.7 || >3.9.7,<3.12"
+streamlit = "^1.32.0"
+langchain = "^0.1.0"
+openai = "^1.12.0"
+python-dotenv = "^1.0.0"
+chromadb = "^0.4.22"
+pypdf = "^4.0.0"
+tiktoken = "^0.5.2"
+langchain-openai = "^0.0.5"
+langchain-community = "^0.0.16"
+unstructured = {extras = ["all-docs"], version = "^0.12.5"}
+pdf2image = "^1.17.0"
+pytesseract = "^0.3.10"
+pyperclip = "^1.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+black = "^24.2.0"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
