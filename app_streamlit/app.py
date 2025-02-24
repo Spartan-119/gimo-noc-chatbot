@@ -12,10 +12,16 @@ project_root = Path(__file__).parent.parent.absolute()
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-# Load environment variables from .env file
+# Try loading from .env file first (for local development)
 load_dotenv(project_root / '.env')
 
-# Print for debugging
+# If running on Streamlit Cloud, use st.secrets
+if not os.getenv("OPENAI_API_KEY") and hasattr(st.secrets, "OPENAI_API_KEY"):
+    os.environ["OPENAI_API_KEY"] = st.secrets.OPENAI_API_KEY
+    os.environ["PINECONE_API_KEY"] = st.secrets.PINECONE_API_KEY
+    os.environ["PINECONE_INDEX_NAME"] = st.secrets.PINECONE_INDEX_NAME
+
+# Debug prints
 print(f"Python path: {sys.path}")
 print(f"Current working directory: {os.getcwd()}")
 print(f"Project root: {project_root}")
