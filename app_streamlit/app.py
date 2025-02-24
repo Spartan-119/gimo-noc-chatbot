@@ -137,4 +137,16 @@ if prompt := st.chat_input("How can I help you today?"):
         "role": "assistant",
         "content": response,
         "sources": sources
-    }) 
+    })
+
+# Check environment variables
+required_env_vars = [
+    "OPENAI_API_KEY",
+    "PINECONE_API_KEY",
+    "PINECONE_INDEX_NAME"
+]
+
+missing_vars = [var for var in required_env_vars if not os.getenv(var)]
+if missing_vars:
+    st.error(f"Missing required environment variables: {', '.join(missing_vars)}")
+    st.stop() 

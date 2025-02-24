@@ -16,14 +16,19 @@ class VectorStore:
     def __init__(self):
         """Initialize vector store with OpenAI embeddings and Pinecone."""
         try:
-            # Initialize OpenAI embeddings
-            self.embeddings = OpenAIEmbeddings()
+            # Get API keys
+            openai_api_key = os.getenv("OPENAI_API_KEY")
+            if not openai_api_key:
+                raise ValueError("OPENAI_API_KEY not found in environment variables")
+            
+            # Initialize OpenAI embeddings with explicit key
+            self.embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
             
             # Initialize Pinecone (new style)
             self.pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-            self.index_name = os.getenv("PINECONE_INDEX_NAME")  # Store name directly
-            self.index = self.pc.Index(self.index_name)  # Create index instance
-                
+            self.index_name = os.getenv("PINECONE_INDEX_NAME")
+            self.index = self.pc.Index(self.index_name)
+            
         except Exception as e:
             logger.error(f"Error initializing vector store: {str(e)}")
             raise
