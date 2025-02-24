@@ -3,6 +3,7 @@ from pathlib import Path
 import sys
 import os
 import time
+from dotenv import load_dotenv
 
 # Get the absolute path to the project root
 project_root = Path(__file__).parent.parent.absolute()
@@ -11,10 +12,14 @@ project_root = Path(__file__).parent.parent.absolute()
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
+# Load environment variables from .env file
+load_dotenv(project_root / '.env')
+
 # Print for debugging
 print(f"Python path: {sys.path}")
 print(f"Current working directory: {os.getcwd()}")
 print(f"Project root: {project_root}")
+print(f"OPENAI_API_KEY exists: {bool(os.getenv('OPENAI_API_KEY'))}")
 
 from noc_prototype.document_loader import DocumentLoader
 from noc_prototype.vector_store import VectorStore
