@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader, UnstructuredPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -9,7 +9,6 @@ from unstructured.documents.elements import (
 )
 import json
 import base64
-from typing import Dict
 import logging
 import os
 
@@ -135,4 +134,25 @@ def process_directory_to_json(directory: str):
                 
     except Exception as e:
         logger.error(f"Error processing directory: {str(e)}")
+        raise
+
+def load_processed_documents(processed_dir: str = "processed_data") -> List[Dict]:
+    """Load documents from processed JSON files."""
+    try:
+        processed_dir_path = Path(processed_dir)
+        if not processed_dir_path.exists():
+            raise FileNotFoundError(f"Processed data directory not found: {processed_dir}")
+
+        documents = []
+        for json_file in processed_dir_path.glob("*.json"):
+            logger.info(f"Loading {json_file.name}...")
+            with open(json_file, "r", encoding="utf-8") as f:
+                doc = json.load(f)
+                documents.append(doc)
+            
+        logger.info(f"Loaded {len(documents)} processed documents")
+        return documents
+
+    except Exception as e:
+        logger.error(f"Error loading processed documents: {str(e)}")
         raise 

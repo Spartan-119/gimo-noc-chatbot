@@ -49,3 +49,10 @@ data/
 chroma_db/
 
 figures/
+
+.env
+__pycache__/
+*.pyc
+.venv/
+processed_data/
+data/
