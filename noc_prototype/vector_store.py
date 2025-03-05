@@ -80,6 +80,59 @@ class VectorStore:
             embedding=self.embeddings
         )
 
+    def get_relevant_documents(self, query: str, score_threshold: float = 0.7):
+        """Get relevant documents with similarity scoring."""
+        try:
+            # Get documents with scores
+            docs_and_scores = self.index.similarity_search_with_score(
+                query=query,
+                k=4  # Fetch top 4 documents
+            )
+            
+            # Filter by score threshold
+            relevant_docs = [
+                doc for doc, score in docs_and_scores 
+                if score >= score_threshold
+            ]
+            
+            if not relevant_docs:
+                logger.warning(f"No relevant documents found for query: {query}")
+                return []
+                
+            logger.info(f"Found {len(relevant_docs)} relevant documents")
+            return relevant_docs
+            
+        except Exception as e:
+            logger.error(f"Error retrieving documents: {str(e)}")
+            raise
+
+    def verify_index_content(self):
+        """Verify documents in Pinecone index."""
+        try:
+            # Get index statistics
+            stats = self.index.describe_index_stats()
+            logger.info(f"Index stats: {stats}")
+            
+            # Query for a few random documents to verify content
+            # Using a simple query that should match most documents
+            results = self.index.query(
+                vector=[0]*1536,  # Dummy vector to get random docs
+                top_k=5,
+                include_metadata=True
+            )
+            
+            logger.info("Sample documents in index:")
+            for match in results['matches']:
+                logger.info(f"ID: {match['id']}")
+                logger.info(f"Score: {match['score']}")
+                logger.info(f"Metadata: {match['metadata']}")
+                
+            return stats['total_vector_count']
+            
+        except Exception as e:
+            logger.error(f"Error verifying index: {str(e)}")
+            raise
+
 def get_vector_store():
     """Get an instance of the vector store."""
     vector_store = VectorStore()

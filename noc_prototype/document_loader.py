@@ -11,6 +11,8 @@ import json
 import base64
 import logging
 import os
+import re
+from langchain.schema import Document
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,46 @@ class DocumentLoader:
             documents.extend(loader.load())
 
         return self.text_splitter.split_documents(documents)
+
+    def clean_text(self, text: str) -> str:
+        """Clean text before embedding."""
+        # Remove extra spaces
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Fix common OCR issues
+        text = text.replace('fr om', 'from')
+        text = text.replace('T eam', 'Team')
+        text = text.replace('ar e', 'are')
+        text = text.replace('pr o', 'pro')
+        
+        # Remove non-breaking spaces
+        text = text.replace('\u00a0', ' ')
+        
+        # Clean up newlines
+        text = re.sub(r'\n+', '\n', text)
+        
+        return text.strip()
+
+    def _convert_json_to_documents(self, json_docs):
+        """Convert JSON documents to LangChain Document format with cleaning."""
+        documents = []
+        for doc in json_docs:
+            # Clean and combine all content
+            text = "\n".join(
+                self.clean_text(item["text"]) 
+                for item in doc["content"]
+            )
+            
+            # Create LangChain Document
+            document = Document(
+                page_content=text,
+                metadata={
+                    "source": doc["metadata"]["source"],
+                    "filename": doc["metadata"]["filename"]
+                }
+            )
+            documents.append(document)
+        return documents
 
 def process_pdf_to_json(pdf_path: str) -> Dict:
     """

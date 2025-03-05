@@ -64,6 +64,18 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
+    with st.expander("Debug Tools"):
+        if st.button("Verify Index Content"):
+            stats = vector_store.verify_index_content()
+            st.write(f"Documents in index: {stats}")
+            
+        if st.button("Test Retrieval"):
+            test_query = "premium club voucher"
+            results = st.session_state.chat_engine.test_retrieval(test_query)
+            for doc, score in results:
+                st.write(f"Score: {score}")
+                st.code(doc.page_content[:200])
+
 # Initialize session state
 if "chat_engine" not in st.session_state:
     # Initialize vector store
@@ -116,19 +128,19 @@ for message in st.session_state.messages:
 
 # Chat input
 if prompt := st.chat_input("How can I help you today?"):
-    # Display user message
     with st.chat_message("user"):
-        st.markdown(f"""
-            <div class="user-bubble">
-                <div class="main-text">{prompt}</div>
-            </div>
-        """, unsafe_allow_html=True)
-    st.session_state.messages.append({"role": "user", "content": prompt})
-
-    # Get response from chat engine
+        st.markdown(prompt)
+    
     with st.spinner("Thinking..."):
         response, source_docs = st.session_state.chat_engine.get_response(prompt)
-    sources = format_source_documents(source_docs)
+        
+        # Debug info in sidebar
+        with st.sidebar:
+            with st.expander("Debug Info"):
+                st.write("Retrieved Documents:")
+                for i, doc in enumerate(source_docs, 1):
+                    st.write(f"Doc {i}:")
+                    st.code(doc.page_content[:200] + "...")
 
     # Display assistant response
     with st.chat_message("assistant"):
@@ -139,7 +151,7 @@ if prompt := st.chat_input("How can I help you today?"):
         """, unsafe_allow_html=True)
         st.markdown(f"""
             <div class="source-text">
-                {sources}
+                {format_source_documents(source_docs)}
             </div>
         """, unsafe_allow_html=True)
     
@@ -147,7 +159,7 @@ if prompt := st.chat_input("How can I help you today?"):
     st.session_state.messages.append({
         "role": "assistant",
         "content": response,
-        "sources": sources
+        "sources": format_source_documents(source_docs)
     })
 
 # Check environment variables
